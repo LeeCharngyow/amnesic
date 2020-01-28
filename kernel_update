@@ -1,0 +1,57 @@
+sudo apt update
+sudo apt upgrade
+sudo apt dist-upgrade
+sudo apt autoremove
+
+#find the latest stable version at kernel.org
+echo "\033[32mchecking the latest version...\033[0m"
+wget https://www.kernel.org/
+grep -A1 "<td>stable:</td>" index.html > lkv.tmp
+egrep "strong" lkv.tmp > index.html
+sed 's|.*<td><strong>||g' index.html > lkv.tmp
+rm index.html
+
+#to attach version manually as manual check
+echo -n "current kernel version:          "
+uname -r
+echo -n "mstable version at kernel.org:    \033[32"
+sed 's|</.*||g' lkv.tmp
+rm lkv.tmp
+echo -n "\033[0mwhich version of deb to download?"
+read -p "e.g. [5.4.15] or [Ctrl]+[c]" lkv
+
+#find the deb files at https://kernel.ubuntu.com/
+echo "\033[32mchecking the latest version...\033[0m"
+wget https://kernel.ubuntu.com/~kernel-ppa/mainline/v$lkv/
+grep -A7 "Build for amd64 succeeded" index.html > amd64deb.tmp
+sed -e '/lowlatency/d' amd64deb.tmp > deb2dl.tmp
+sed -e 's|.*&nbsp;   <a href="||g' deb2dl.tmp > amd64deb.tmp
+sed -e 's|".*||g' amd64deb.tmp > deb2dl.tmp
+rm amd64deb.tmp
+rm index.html
+
+#generate a list to download... not learn loop syntax on linux yet
+sed '1d' deb2dl.tmp > dldeb.tmp
+echo -n "wget https://kernel.ubuntu.com/~kernel-ppa/mainline/v$lkv/" > dl.sh
+head -1 dldeb.tmp >> dl.sh
+
+sed '1d' dldeb.tmp > deb2dl.tmp
+echo -n "wget https://kernel.ubuntu.com/~kernel-ppa/mainline/v$lkv/" >> dl.sh
+head -1 deb2dl.tmp >>dl.sh
+
+sed '1d' deb2dl.tmp > dldeb.tmp
+echo -n "wget https://kernel.ubuntu.com/~kernel-ppa/mainline/v$lkv/" >> dl.sh
+head -1 dldeb.tmp >> dl.sh
+
+sed '1d' dldeb.tmp > deb2dl.tmp
+echo -n "wget https://kernel.ubuntu.com/~kernel-ppa/mainline/v$lkv/" >> dl.sh
+head -1 deb2dl.tmp >> dl.sh
+
+sh dl.sh
+rm dldeb.tmp
+rm deb2dl.tmp
+rm dl.sh
+
+sudo dpkg -i *.deb
+mkdir kernel-version-$lkv
+mv *.deb kernelsl-version-$lkv
