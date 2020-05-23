@@ -1,3 +1,4 @@
+#calculate the parameters for specific resolution. $cvt [hor.] [ver.] [framerate]
 $cvt 2560 1080 50
 # 2560x1080 49.95 Hz (CVT) hsync: 55.65 kHz; pclk: 188.75 MHz
 Modeline "2560x1080_50.00"  188.75  2560 2712 2976 3392  1080 1083 1093 1114 -hsync +vsync
